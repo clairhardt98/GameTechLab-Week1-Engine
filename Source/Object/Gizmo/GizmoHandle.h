@@ -38,7 +38,7 @@ private:
 	EGizmoType GizmoType = EGizmoType::Translate;
 
 	virtual const char* GetTypeName() override;
-
+	bool bPrevPressed = false;
 private:
 	void DoTransform(FTransform& AT, FVector Result, AActor* Actor);
 };

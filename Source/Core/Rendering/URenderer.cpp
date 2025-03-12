@@ -268,10 +268,10 @@ void URenderer::UpdateConstant(const ConstantUpdateInfo& UpdateInfo) const
 
     D3D11_MAPPED_SUBRESOURCE ConstantBufferMSR;
 
-    FMatrix MVP = 
-        FMatrix::Transpose(ProjectionMatrix) * 
-        FMatrix::Transpose(ViewMatrix) * 
-        FMatrix::Transpose(UpdateInfo.Transform.GetMatrix());    // 상수 버퍼를 CPU 메모리에 매핑
+	FMatrix MVP = FMatrix::Transpose(UpdateInfo.Transform.GetMatrix() * ViewMatrix * ProjectionMatrix);
+        //FMatrix::Transpose(ProjectionMatrix) * 
+        //FMatrix::Transpose(ViewMatrix) * 
+        //FMatrix::Transpose(UpdateInfo.Transform.GetMatrix());    // 상수 버퍼를 CPU 메모리에 매핑
 
     // D3D11_MAP_WRITE_DISCARD는 이전 내용을 무시하고 새로운 데이터로 덮어쓰기 위해 사용
     DeviceContext->Map(ConstantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &ConstantBufferMSR);
@@ -486,7 +486,7 @@ void URenderer::CreateRasterizerState()
     D3D11_RASTERIZER_DESC RasterizerDesc = {};
     RasterizerDesc.FillMode = D3D11_FILL_SOLID; // 채우기 모드
     RasterizerDesc.CullMode = D3D11_CULL_BACK;  // 백 페이스 컬링
-    RasterizerDesc.FrontCounterClockwise = FALSE;
+    RasterizerDesc.FrontCounterClockwise = TRUE;
 
     Device->CreateRasterizerState(&RasterizerDesc, &RasterizerState);
 }

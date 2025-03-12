@@ -3,7 +3,6 @@
 #include "Core/HAL/PlatformType.h"
 
 
-// TODO: RTTI 구현하면 enable_shared_from_this 제거
 class UObject : public std::enable_shared_from_this<UObject>
 {
 	friend class FObjectFactory;

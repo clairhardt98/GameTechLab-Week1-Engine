@@ -94,13 +94,13 @@ TArray<FVertexSimple> FBufferCache::CreateConeVertices()
 
 		 // 바닥 삼각형 (반시계 방향으로 추가)
         vertices.Add({ 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f });
-        vertices.Add({ x2, y2, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f });
         vertices.Add({ x1, y1, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f });
+        vertices.Add({ x2, y2, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f });
 
         // 옆면 삼각형 (시계 방향으로 추가)
         vertices.Add({ x1, y1, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f });
-        vertices.Add({ x2, y2, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f });
         vertices.Add({ 0.0f, 0.0f, height, 0.0f, 1.0f, 0.0f, 1.0f });
+        vertices.Add({ x2, y2, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f });
 	}
 
 	return vertices;
@@ -128,22 +128,22 @@ TArray<FVertexSimple> FBufferCache::CreateCylinderVertices()
 
 		// 바닥 삼각형
 		vertices.Add({ 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f });
-		vertices.Add({ x2, y2, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f });
 		vertices.Add({ x1, y1, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f });
+		vertices.Add({ x2, y2, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f });
 
 		// 윗면 삼각형
 		vertices.Add({ 0.0f, 0.0f, height, 0.0f, 1.0f, 0.0f, 1.0f });
-		vertices.Add({ x1, y1, height, 0.0f, 1.0f, 0.0f, 1.0f });
 		vertices.Add({ x2, y2, height, 0.0f, 1.0f, 0.0f, 1.0f });
+		vertices.Add({ x1, y1, height, 0.0f, 1.0f, 0.0f, 1.0f });
 
 		// 옆면 삼각형 두 개
 		vertices.Add({ x1, y1, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f });
-		vertices.Add({ x2, y2, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f });
 		vertices.Add({ x1, y1, height, 0.0f, 0.0f, 1.0f, 1.0f });
+		vertices.Add({ x2, y2, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f });
 
 		vertices.Add({ x2, y2, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f });
-		vertices.Add({ x2, y2, height, 0.0f, 0.0f, 1.0f, 1.0f });
 		vertices.Add({ x1, y1, height, 0.0f, 0.0f, 1.0f, 1.0f });
+		vertices.Add({ x2, y2, height, 0.0f, 0.0f, 1.0f, 1.0f });
 	}
 
 	return vertices;

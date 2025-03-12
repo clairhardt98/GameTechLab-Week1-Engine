@@ -164,4 +164,13 @@ struct FMath
     {
 	    return Value*Value;
     }
+
+	[[nodiscard]] static float FMod(float X, float Y)
+	{
+		return fmodf(X, Y);
+	}
+	[[nodiscard]] static double FMod(double X, double Y)
+	{
+		return fmod(X, Y);
+	}
 };

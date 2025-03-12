@@ -323,29 +323,29 @@ void UI::RenderPropertyWindow()
     if (selectedActor != nullptr)
     {
         FTransform selectedTransform = selectedActor->GetActorTransform();
+        bool isTransformDirty = false;
         float position[] = { selectedTransform.GetPosition().X, selectedTransform.GetPosition().Y, selectedTransform.GetPosition().Z };
         float scale[] = { selectedTransform.GetScale().X, selectedTransform.GetScale().Y, selectedTransform.GetScale().Z };
+		FVector EulerRotation = selectedTransform.GetRotation().GetEuler();
+		float rotation[] = { EulerRotation.X, EulerRotation.Y, EulerRotation.Z };
 
         if (ImGui::DragFloat3("Translation", position, 0.1f))
         {
             selectedTransform.SetPosition(position[0], position[1], position[2]);
             selectedActor->SetActorTransform(selectedTransform);
+            isTransformDirty = true;
         }
-
-        FVector PrevEulerAngle = selectedTransform.GetRotation().GetEuler();
-        FVector UIEulerAngle = PrevEulerAngle;
-        if (ImGui::DragFloat3("Rotation", reinterpret_cast<float*>(&UIEulerAngle), 0.1f))
+        if (ImGui::DragFloat3("Rotation", rotation, 0.1f))
         {
-            FVector DeltaEulerAngle = UIEulerAngle - PrevEulerAngle;
-
-            selectedTransform.Rotate(DeltaEulerAngle);
-			UE_LOG("Rotation: %.2f, %.2f, %.2f", DeltaEulerAngle.X, DeltaEulerAngle.Y, DeltaEulerAngle.Z);
-            selectedActor->SetActorTransform(selectedTransform);
+			EulerRotation = { rotation[0], rotation[1], rotation[2] };
+            selectedTransform.SetRotation(EulerRotation);
+            isTransformDirty = true;
         }
         if (ImGui::DragFloat3("Scale", scale, 0.1f))
         {
             selectedTransform.SetScale(scale[0], scale[1], scale[2]);
             selectedActor->SetActorTransform(selectedTransform);
+            isTransformDirty = true;
         }
 		if (FEditorManager::Get().GetGizmoHandle() != nullptr)
 		{
@@ -363,6 +363,10 @@ void UI::RenderPropertyWindow()
 				ImGui::Text("GizmoType: Scale");
 			}
 		}
+        if (isTransformDirty)
+        {
+            selectedActor->SetActorTransform(selectedTransform);
+        }
     }
     ImGui::End();
 }

@@ -51,7 +51,12 @@ public:
 	}
 	inline virtual void SetRotation(const FVector& InRotation)
 	{
-		Rotation = FQuat::EulerToQuaternion(InRotation);
+		FQuat QuatX = FQuat::AxisAngleToQuaternion(FVector(1, 0, 0), InRotation.X);
+		FQuat QuatY = FQuat::AxisAngleToQuaternion(FVector(0, 1, 0), InRotation.Y);
+		FQuat QuatZ = FQuat::AxisAngleToQuaternion(FVector(0, 0, 1), InRotation.Z);
+
+		Rotation = QuatZ * QuatY * QuatX;
+		Rotation.Normalize();
 	}
 	inline virtual void SetRotation(float x, float y, float z)
 	{
@@ -125,17 +130,16 @@ public:
 	// InRotate는 Degree 단위
 	void Rotate(const FVector& InRotation)
 	{
-		RotateRoll(InRotation.X);
-		RotatePitch(InRotation.Y);
-		RotateYaw(InRotation.Z);
+		FQuat DeltaRotation = FQuat::EulerToQuaternion(InRotation);
+		Rotation = FQuat::MultiplyQuaternions(Rotation, DeltaRotation);
+
+		Rotation.Normalize();
 	}
 
 	void RotateYaw(float Angle)
 	{
-		FVector Axis = FVector(0, 0, 1);
+		FVector Axis = FVector(0, 0, 1).GetSafeNormal();
 		Rotation = FQuat::MultiplyQuaternions(Rotation, FQuat(Axis, Angle));
-
-		//Rotation = FQuat::MultiplyQuaternions(Rotation, FQuat(0, 0, sin(Angle * TORAD / 2), cos(Angle * TORAD / 2)));
 	}
 
 	void RotatePitch(float Angle)

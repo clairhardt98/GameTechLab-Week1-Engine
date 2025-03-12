@@ -235,17 +235,17 @@ FMatrix FMatrix::GetRotateMatrix(const FQuat& Q)
 	FMatrix Result;
 
 	Result.M[0][0] = 1.0f - 2.0f * (yy + zz);
-	Result.M[0][1] = 2.0f * (xy - wz);
-	Result.M[0][2] = 2.0f * (xz + wy);
+	Result.M[0][1] = 2.0f * (xy + wz);
+	Result.M[0][2] = 2.0f * (xz - wy);
 	Result.M[0][3] = 0.0f;
 
-	Result.M[1][0] = 2.0f * (xy + wz);
+	Result.M[1][0] = 2.0f * (xy - wz);
 	Result.M[1][1] = 1.0f - 2.0f * (xx + zz);
-	Result.M[1][2] = 2.0f * (yz - wx);
+	Result.M[1][2] = 2.0f * (yz + wx);
 	Result.M[1][3] = 0.0f;
 
-	Result.M[2][0] = 2.0f * (xz - wy);
-	Result.M[2][1] = 2.0f * (yz + wx);
+	Result.M[2][0] = 2.0f * (xz + wy);
+	Result.M[2][1] = 2.0f * (yz - wx);
 	Result.M[2][2] = 1.0f - 2.0f * (xx + yy);
 	Result.M[2][3] = 0.0f;
 

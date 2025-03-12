@@ -2,9 +2,10 @@
 #include "Core/Math/Matrix.h"
 
 FQuat FQuat::AxisAngleToQuaternion(const FVector& Axis, float AngleInDegrees) {
+    // 회전방향을 왼손법칙을 따르도록
     float AngleInRadians = FMath::DegreesToRadians(AngleInDegrees);
     float HalfAngle = AngleInRadians * 0.5f;
-    float s = sinf(HalfAngle);
+    float s = FMath::Sin(HalfAngle);
     return FQuat(
         Axis.X * s,
         Axis.Y * s,
@@ -130,4 +131,18 @@ FQuat FQuat::MakeFromRotationMatrix(const FMatrix& M)
     }
 
     return Q;
+}
+
+void FQuat::Normalize()
+{
+	float Length = sqrtf(X * X + Y * Y + Z * Z + W * W);
+    if (Length == 0)
+    {
+		X = 0; Y = 0; Z = 0; W = 1;
+        return;
+    }
+
+	float InvLength = 1.0f / Length;
+
+	X *= InvLength; Y *= InvLength; Z *= InvLength; W *= InvLength;
 }
