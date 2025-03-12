@@ -119,10 +119,10 @@ enum class EKeyCode : uint8_t
     RAlt = 0xA5,
 };
 
-class APlayerInput : public TSingleton<APlayerInput>
+class UInputManager : public TSingleton<UInputManager>
 {
 public:
-    APlayerInput();
+    UInputManager();
 
     /**
      * 키를 눌림 상태로 전환합니다. 

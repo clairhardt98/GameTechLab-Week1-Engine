@@ -18,14 +18,14 @@ void HandleMouseInput(HWND hWnd, LPARAM lParam, bool isDown, bool isRight)
     FVector WH = GetWndWH(hWnd);
     if (isDown)
     {
-        APlayerInput::Get().MouseKeyDown(FVector(Pts.x , Pts.y , 0), FVector(WH.X , WH.Y , 0), isRight);
+        UInputManager::Get().MouseKeyDown(FVector(Pts.x , Pts.y , 0), FVector(WH.X , WH.Y , 0), isRight);
     }else
     {
-        APlayerInput::Get().MouseKeyUp(FVector(Pts.x , Pts.y , 0), FVector(WH.X , WH.Y , 0), isRight);
+        UInputManager::Get().MouseKeyUp(FVector(Pts.x , Pts.y , 0), FVector(WH.X , WH.Y , 0), isRight);
     }
 }
 
-APlayerInput::APlayerInput()
+UInputManager::UInputManager()
 {
     for (bool& key : _keys)
     {
@@ -48,29 +48,29 @@ APlayerInput::APlayerInput()
     }
 }
 
-bool APlayerInput::IsPressedKey(EKeyCode key) const
+bool UInputManager::IsPressedKey(EKeyCode key) const
 {
     return _keys[static_cast<uint8_t>(key)];
 }
 
-void APlayerInput::KeyDown(EKeyCode key)
+void UInputManager::KeyDown(EKeyCode key)
 {
     _keys[static_cast<uint8_t>(key)] = true;
     _onceKeys[static_cast<uint8_t>(key)] = true;
 }
 
-void APlayerInput::KeyOnceUp(EKeyCode key)
+void UInputManager::KeyOnceUp(EKeyCode key)
 {
     _onceKeys[static_cast<uint8_t>(key)] = false;
 }
 
-void APlayerInput::KeyUp(EKeyCode key)
+void UInputManager::KeyUp(EKeyCode key)
 {
     _keys[static_cast<uint8_t>(key)] = false;
     _onceKeys[static_cast<uint8_t>(key)] = false;
 }
 
-std::vector<EKeyCode> APlayerInput::GetPressedKeys() {
+std::vector<EKeyCode> UInputManager::GetPressedKeys() {
     std::vector<EKeyCode> ret;
 
     for (int i = 0; i < 256; i++) {
@@ -81,29 +81,29 @@ std::vector<EKeyCode> APlayerInput::GetPressedKeys() {
 
     return ret;
 }
-void APlayerInput::MouseKeyDown(FVector MouseDownPoint, FVector WindowSize, int isRight) {
+void UInputManager::MouseKeyDown(FVector MouseDownPoint, FVector WindowSize, int isRight) {
     mouse[isRight] = true;
     onceMouse[isRight] = true;
     MouseKeyDownPos[isRight] = MouseDownPoint;
     MouseKeyDownNDCPos[isRight] = CalNDCPos(MouseKeyDownPos[isRight], WindowSize);
 } //MouseKeyDownPos 설정
 
-void APlayerInput::MouseKeyUp(FVector MouseUpPoint, FVector WindowSize, int isRight) {
+void UInputManager::MouseKeyUp(FVector MouseUpPoint, FVector WindowSize, int isRight) {
     mouse[isRight] = false;
     onceMouse[isRight] = false;
 }
 
-void APlayerInput::PreProcessInput()
+void UInputManager::PreProcessInput()
 {
     ExpireOnce();
 }
 
-void APlayerInput::TickPlayerInput()
+void UInputManager::TickPlayerInput()
 {
     SetMousePos();
 }
 
-void APlayerInput::SetMousePos()
+void UInputManager::SetMousePos()
 {
     POINT Pts;
     if (GetCursorPos(&Pts))
@@ -113,7 +113,7 @@ void APlayerInput::SetMousePos()
     }
 }
 
-void APlayerInput::ExpireOnce()
+void UInputManager::ExpireOnce()
 {
     for (bool& i : onceMouse)
     {
@@ -126,12 +126,12 @@ void APlayerInput::ExpireOnce()
     }
 }
 
-FVector APlayerInput::CalNDCPos(FVector MousePos, FVector WindowSize)
+FVector UInputManager::CalNDCPos(FVector MousePos, FVector WindowSize)
 {
     return {( MousePos.X / ( WindowSize.X / 2 ) ) - 1, ( MousePos.Y / ( WindowSize.Y / 2 ) ) - 1, 0};
 }
 
-void APlayerInput::HandleMouseInput(HWND hWnd, LPARAM lParam, bool isDown, bool isRight)
+void UInputManager::HandleMouseInput(HWND hWnd, LPARAM lParam, bool isDown, bool isRight)
 {
     POINTS Pts = MAKEPOINTS(lParam);
     FVector WH = GetWndWH(hWnd);

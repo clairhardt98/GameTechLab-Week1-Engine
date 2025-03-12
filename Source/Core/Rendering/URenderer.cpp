@@ -5,6 +5,9 @@
 #include <Object/Actor/Camera.h>
 #include "Object/PrimitiveComponent/UPrimitiveComponent.h"
 #include "Static/FEditorManager.h"
+#include "Core/Container/Array.h"
+#include "Core/Math/Box.h"
+
 
 void URenderer::Create(HWND hWindow)
 {
@@ -219,7 +222,7 @@ void URenderer::RenderPrimitive(UPrimitiveComponent* PrimitiveComp)
 	}
 
     ConstantUpdateInfo UpdateInfo{ 
-        PrimitiveComp->GetWorldTransform(), 
+        PrimitiveComp->GetWorldTransform().GetMatrix(),
         PrimitiveComp->GetCustomColor(), 
         PrimitiveComp->IsUseVertexColor()
     };
@@ -236,6 +239,68 @@ void URenderer::RenderPrimitiveInternal(ID3D11Buffer* pBuffer, UINT numVertices)
     DeviceContext->IASetVertexBuffers(0, 1, &pBuffer, &Stride, &Offset);
 
     DeviceContext->Draw(numVertices, 0);
+}
+
+void URenderer::RenderBox(const FBox& Box, const FVector4& Color) const
+{
+    // 월드변환이 이미 돼있다
+    ConstantUpdateInfo UpdateInfo
+    {
+		FMatrix::Identity(),
+        Color,
+        false,
+    };
+
+	UpdateConstant(UpdateInfo);
+    DeviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
+
+    // Box의 Min, Max를 이용해 버텍스 배열 생성
+    FVertexSimple BoxVertices[8] =
+    {
+        {Box.Min.X, Box.Min.Y, Box.Min.Z, 1.0f, 1.0f, 1.0f, 1.0f},
+        {Box.Min.X, Box.Min.Y, Box.Max.Z, 1.0f, 1.0f, 1.0f, 1.0f},
+        {Box.Min.X, Box.Max.Y, Box.Min.Z, 1.0f, 1.0f, 1.0f, 1.0f},
+        {Box.Min.X, Box.Max.Y, Box.Max.Z, 1.0f, 1.0f, 1.0f, 1.0f},
+        {Box.Max.X, Box.Min.Y, Box.Min.Z, 1.0f, 1.0f, 1.0f, 1.0f},
+        {Box.Max.X, Box.Min.Y, Box.Max.Z, 1.0f, 1.0f, 1.0f, 1.0f},
+        {Box.Max.X, Box.Max.Y, Box.Min.Z, 1.0f, 1.0f, 1.0f, 1.0f},
+        {Box.Max.X, Box.Max.Y, Box.Max.Z, 1.0f, 1.0f, 1.0f, 1.0f},
+    };
+
+	std::vector<UINT> Indices =
+	{
+        0, 2, 2, 3, 3, 1, 1, 0, // 앞면
+        4, 6, 6, 7, 7, 5, 5, 4, // 뒷면
+        // 상단과 하단 연결
+        0, 4, 2, 6, 3, 7, 1, 5  // 상단과 하단을 연결하는 선
+	};
+
+	ID3D11Buffer* Buffer = CreateVertexBuffer(BoxVertices, sizeof(FVector) * 8);
+
+    D3D11_SUBRESOURCE_DATA initData = {};
+    initData.pSysMem = BoxVertices;
+    UINT stride = sizeof(FVector);
+    UINT offset = 0;
+
+    // !NOTE : 임시 -> 나중에 버퍼는 캐시해야됨
+    ID3D11Buffer* IndexBuffer = nullptr;
+    D3D11_BUFFER_DESC bufferDesc = {};
+    bufferDesc.Usage = D3D11_USAGE_DEFAULT;
+    bufferDesc.ByteWidth = sizeof(UINT) * Indices.size();
+    bufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+    initData.pSysMem = Indices.data();
+
+    Device->CreateBuffer(&bufferDesc, &initData, &IndexBuffer);
+
+    DeviceContext->IASetVertexBuffers(0, 1, &Buffer, &stride, &offset);
+    DeviceContext->IASetIndexBuffer(Buffer, DXGI_FORMAT_R32_UINT, 0);
+    DeviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
+
+	DeviceContext->DrawIndexed(Indices.size(), 0, 0);
+    if (IndexBuffer)
+        IndexBuffer->Release();
+	if (Buffer)
+		Buffer->Release();
 }
 
 ID3D11Buffer* URenderer::CreateVertexBuffer(const FVertexSimple* Vertices, UINT ByteWidth) const
@@ -268,7 +333,6 @@ void URenderer::UpdateConstant(const ConstantUpdateInfo& UpdateInfo) const
 
     D3D11_MAPPED_SUBRESOURCE ConstantBufferMSR;
 
-	FMatrix MVP = FMatrix::Transpose(UpdateInfo.Transform.GetMatrix() * ViewMatrix * ProjectionMatrix);
         //FMatrix::Transpose(ProjectionMatrix) * 
         //FMatrix::Transpose(ViewMatrix) * 
         //FMatrix::Transpose(UpdateInfo.Transform.GetMatrix());    // 상수 버퍼를 CPU 메모리에 매핑
@@ -278,7 +342,7 @@ void URenderer::UpdateConstant(const ConstantUpdateInfo& UpdateInfo) const
     {
         // 매핑된 메모리를 FConstants 구조체로 캐스팅
         FConstants* Constants = static_cast<FConstants*>(ConstantBufferMSR.pData);
-        Constants->MVP = MVP;
+        Constants->MVP = UpdateInfo.MVP.GetTransposed();
 		Constants->Color = UpdateInfo.Color;
 		Constants->bUseVertexColor = UpdateInfo.bUseVertexColor ? 1 : 0;
     }
@@ -553,12 +617,12 @@ void URenderer::CreatePickingTexture(HWND hWnd)
     Device->CreateRenderTargetView(PickingFrameBuffer, &PickingFrameBufferRTVDesc, &PickingFrameBufferRTV);
 }
 
-void URenderer::PrepareZIgnore()
+void URenderer::PrepareZIgnore() const
 {
     DeviceContext->OMSetDepthStencilState(IgnoreDepthStencilState, 0);
 }
 
-void URenderer::PreparePicking()
+void URenderer::PreparePicking() const
 {
     // 렌더 타겟 바인딩
     DeviceContext->OMSetRenderTargets(1, &PickingFrameBufferRTV, DepthStencilView);
@@ -743,6 +807,17 @@ void URenderer::OnUpdateWindowSize(int Width, int Height)
         ReleaseDepthStencilBuffer();
         CreateDepthStencilBuffer();
     }
+}
+
+void URenderer::GetPrimitiveLocalBounds(EPrimitiveType Type, FVector& OutMin, FVector& OutMax)
+{
+	BufferInfo Info = BufferCache->GetBufferInfo(Type);
+	if (Info.GetBuffer() == nullptr)
+	{
+		return;
+	}
+	OutMin = Info.GetMin();
+	OutMax = Info.GetMax();
 }
 
 void URenderer::RenderPickingTexture()

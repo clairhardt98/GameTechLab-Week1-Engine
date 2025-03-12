@@ -1,12 +1,12 @@
-﻿#include "Plane.h"
+﻿#include "Quat.h"
 #include "Core/Math/Matrix.h"
 
-FQuat FQuat::AxisAngleToQuaternion(const FVector& Axis, float AngleInDegrees) {
+FQuaternion FQuaternion::AxisAngleToQuaternion(const FVector& Axis, float Angle, bool bIsDegree) {
     // 회전방향을 왼손법칙을 따르도록
-    float AngleInRadians = FMath::DegreesToRadians(AngleInDegrees);
-    float HalfAngle = AngleInRadians * 0.5f;
+    float Radian = bIsDegree ? FMath::DegreesToRadians(Angle) : Angle;
+    float HalfAngle = Radian * 0.5f;
     float s = FMath::Sin(HalfAngle);
-    return FQuat(
+    return FQuaternion(
         Axis.X * s,
         Axis.Y * s,
         Axis.Z * s,
@@ -14,7 +14,15 @@ FQuat FQuat::AxisAngleToQuaternion(const FVector& Axis, float AngleInDegrees) {
     );
 }
 
-FQuat FQuat::EulerToQuaternion(FVector Euler)
+FQuaternion::FQuaternion(const FQuaternion& Quat)
+{
+    X = Quat.X;
+    Y = Quat.Y;
+	Z = Quat.Z;
+	W = Quat.W;
+}
+
+FQuaternion FQuaternion::EulerToQuaternion(const FVector& Euler)
 {
     float roll = FMath::DegreesToRadians(Euler.X);
     float pitch = FMath::DegreesToRadians(Euler.Y);
@@ -27,7 +35,7 @@ FQuat FQuat::EulerToQuaternion(FVector Euler)
     double cy = cos(yaw * 0.5);
     double sy = sin(yaw * 0.5);
 
-    FQuat q;
+    FQuaternion q;
     q.W = cr * cp * cy + sr * sp * sy;
     q.X = sr * cp * cy - cr * sp * sy;
     q.Y = cr * sp * cy + sr * cp * sy;
@@ -36,7 +44,7 @@ FQuat FQuat::EulerToQuaternion(FVector Euler)
     return q;
 }
 
-FVector FQuat::QuaternionToEuler(const FQuat& Quat) {
+FVector FQuaternion::QuaternionToEuler(const FQuaternion& Quat) {
     FVector angles;
 
     // roll (x-axis rotation)
@@ -61,8 +69,8 @@ FVector FQuat::QuaternionToEuler(const FQuat& Quat) {
     return angles;
 }
 
-FQuat FQuat::AddQuaternions(const FQuat& q1, const FQuat& q2) {
-    return FQuat(
+FQuaternion FQuaternion::AddQuaternions(const FQuaternion& q1, const FQuaternion& q2) {
+    return FQuaternion(
         q1.X + q2.X,
         q1.Y + q2.Y,
         q1.Z + q2.Z,
@@ -70,8 +78,8 @@ FQuat FQuat::AddQuaternions(const FQuat& q1, const FQuat& q2) {
     );
 }
 
-FQuat FQuat::MultiplyQuaternions(const FQuat& q1, const FQuat& q2) {
-    return FQuat(
+FQuaternion FQuaternion::MultiplyQuaternions(const FQuaternion& q1, const FQuaternion& q2) {
+    return FQuaternion(
         q1.W * q2.X + q1.X * q2.W + q1.Y * q2.Z - q1.Z * q2.Y, // X
         q1.W * q2.Y - q1.X * q2.Z + q1.Y * q2.W + q1.Z * q2.X, // Y
         q1.W * q2.Z + q1.X * q2.Y - q1.Y * q2.X + q1.Z * q2.W, // Z
@@ -79,8 +87,8 @@ FQuat FQuat::MultiplyQuaternions(const FQuat& q1, const FQuat& q2) {
     );
 }
 
-FQuat FQuat::SubtractQuaternions(const FQuat& q1, const FQuat& q2) {
-    return FQuat(
+FQuaternion FQuaternion::SubtractQuaternions(const FQuaternion& q1, const FQuaternion& q2) {
+    return FQuaternion(
         q1.X - q2.X,
         q1.Y - q2.Y,
         q1.Z - q2.Z,
@@ -88,9 +96,9 @@ FQuat FQuat::SubtractQuaternions(const FQuat& q1, const FQuat& q2) {
     );
 }
 
-FQuat FQuat::MakeFromRotationMatrix(const FMatrix& M)
+FQuaternion FQuaternion::MakeFromRotationMatrix(const FMatrix& M)
 {
-    FQuat Q;
+    FQuaternion Q;
 
     float trace = M.M[0][0] + M.M[1][1] + M.M[2][2]; // 행렬의 Trace 값 (대각합)
 
@@ -133,7 +141,17 @@ FQuat FQuat::MakeFromRotationMatrix(const FMatrix& M)
     return Q;
 }
 
-void FQuat::Normalize()
+FVector FQuaternion::RotateVector(const FVector& Other) const
+{
+    FQuaternion VecQuat(0, Other.X, Other.Y, Other.Z);
+
+    FQuaternion Conjugate = FQuaternion(W, -X, -Y, -Z);
+    FVector Result = *this * VecQuat * Conjugate;
+
+	return FVector(Result.X, Result.Y, Result.Z);
+}
+
+void FQuaternion::Normalize()
 {
 	float Length = sqrtf(X * X + Y * Y + Z * Z + W * W);
     if (Length == 0)
@@ -145,4 +163,9 @@ void FQuat::Normalize()
 	float InvLength = 1.0f / Length;
 
 	X *= InvLength; Y *= InvLength; Z *= InvLength; W *= InvLength;
+}
+
+bool FQuaternion::IsNormalized() const
+{
+	return FMath::Fabs(W * W + X * X + Y * Y + Z * Z - 1.0f) < 1e-6f;
 }

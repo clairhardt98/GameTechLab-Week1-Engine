@@ -69,6 +69,9 @@ public:
         requires std::derived_from<ObjectType, UObject>
     ObjectType* GetObjectByUUID(uint32 InUUID) const;
     UObject* GetObjectByUUID(uint32 InUUID) const;
+    template <typename ObjectType>
+        requires std::derived_from<ObjectType, UObject>
+    TArray<ObjectType*> GetObjectArrayByType() const;
 
 private:
     bool IsRunning = false;
@@ -110,4 +113,18 @@ ObjectType* UEngine::GetObjectByUUID(uint32 InUUID) const
         }
     }
     return nullptr;
+}
+
+template <typename ObjectType> requires std::derived_from<ObjectType, UObject>
+TArray<ObjectType*> UEngine::GetObjectArrayByType() const
+{
+	TArray<ObjectType*> Result;
+	for (const auto& [Key, Value] : GObjects)
+	{
+		if (const auto Obj = std::dynamic_pointer_cast<ObjectType, UObject>(Value))
+		{
+			Result.Add(Obj.get());
+		}
+	}
+	return Result;
 }

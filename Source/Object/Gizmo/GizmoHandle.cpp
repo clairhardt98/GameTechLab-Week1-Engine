@@ -19,7 +19,7 @@ AGizmoHandle::AGizmoHandle()
 	// x
 	UCylinderComp* XArrow = AddComponent<UCylinderComp>();
 	XArrow->SetupAttachment(ZArrow);
-	XArrow->SetRelativeTransform(FTransform(FVector(0.0f, 0.0f, 0.0f), FVector(0.0f, 90.0f, 0.0f), FVector(1, 1, 1)));
+	XArrow->SetRelativeTransform(FTransform(FVector(0.0f, 0.0f, 0.0f), FVector(0.0f, -90.0f, 0.0f), FVector(1, 1, 1)));
 	XArrow->SetCustomColor(FVector4(1.0f, 0.0f, 0.0f, 1.0f));
 	CylinderComponents.Add(XArrow);
 
@@ -104,7 +104,7 @@ void AGizmoHandle::Tick(float DeltaTime)
 		}
 	}
 
-	if (APlayerInput::Get().GetKeyDown(EKeyCode::Space))
+	if (UInputManager::Get().GetKeyDown(EKeyCode::Space))
 	{
  		int type = static_cast<int>(GizmoType);
 		type = (type + 1) % static_cast<int>(EGizmoType::Max);

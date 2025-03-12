@@ -150,9 +150,6 @@
     <ClCompile Include="Source\Object\Actor\Cube.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Core\Math\Plane.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Object\Actor\Camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -178,6 +175,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\Static\FEditorManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Core\Math\Ray.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Core\Math\Quat.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Core\Math\Box.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -234,9 +240,6 @@
     </ClInclude>
     <ClInclude Include="Source\Core\Container\String.h">
       <Filter>Header Files\Core\Container</Filter>
-    </ClInclude>
-    <ClInclude Include="Source\Core\Math\Plane.h">
-      <Filter>Header Files\Core\Math</Filter>
     </ClInclude>
     <ClInclude Include="Source\Core\HAL\PlatformType.h">
       <Filter>Header Files\Core\HAL</Filter>
@@ -338,6 +341,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Source\Static\FEditorManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\Math\Ray.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\Math\Quat.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Core\Math\Box.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

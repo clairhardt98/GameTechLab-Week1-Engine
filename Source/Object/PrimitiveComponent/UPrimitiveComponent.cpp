@@ -3,9 +3,15 @@
 #include "Object/Actor/Actor.h"
 
 
+UPrimitiveComponent::UPrimitiveComponent()
+{
+}
+
 void UPrimitiveComponent::BeginPlay()
 {
 	Super::BeginPlay();
+	InitBoundingBox();
+	//GetOwner()->GetWorld()->AddBoundingBox(&BoundingBox);
 }
 
 void UPrimitiveComponent::Tick(float DeltaTime)
@@ -45,7 +51,27 @@ void UPrimitiveComponent::Render()
 	Renderer->RenderPrimitive(this);
 }
 
+void UPrimitiveComponent::SetRelativeTransform(const FTransform& InTransform)
+{
+	Super::SetRelativeTransform(InTransform);
+	UpdateBoundingBox();
+}
+
 void UPrimitiveComponent::RegisterComponentWithWorld(UWorld* World)
 {
 	World->AddRenderComponent(this);
+}
+
+void UPrimitiveComponent::InitBoundingBox()
+{
+	// 버텍스 정보 가져와서 AABB생성
+	Super::InitBoundingBox();
+}
+
+void UPrimitiveComponent::UpdateBoundingBox()
+{
+	Super::InitBoundingBox();
+
+	FTransform Transform = GetWorldTransform();
+	BoundingBox.Update(Transform.GetMatrix());
 }

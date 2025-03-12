@@ -1,6 +1,6 @@
 ﻿#include "Matrix.h"
 #include "Vector.h"
-#include "Plane.h"
+#include "Quat.h"
 #include "Transform.h"
 
 
@@ -221,7 +221,7 @@ FMatrix FMatrix::GetScaleMatrix(const FVector& InScale)
 	return GetScaleMatrix(InScale.X, InScale.Y, InScale.Z);
 }
 
-FMatrix FMatrix::GetRotateMatrix(const FQuat& Q)
+FMatrix FMatrix::GetRotateMatrix(const FQuaternion& Q)
 {
 	// 쿼터니언 요소 추출
 	const float x = Q.X, y = Q.Y, z = Q.Z, w = Q.W;
@@ -235,17 +235,17 @@ FMatrix FMatrix::GetRotateMatrix(const FQuat& Q)
 	FMatrix Result;
 
 	Result.M[0][0] = 1.0f - 2.0f * (yy + zz);
-	Result.M[0][1] = 2.0f * (xy + wz);
-	Result.M[0][2] = 2.0f * (xz - wy);
+	Result.M[0][1] = 2.0f * (xy - wz);
+	Result.M[0][2] = 2.0f * (xz + wy);
 	Result.M[0][3] = 0.0f;
 
-	Result.M[1][0] = 2.0f * (xy - wz);
+	Result.M[1][0] = 2.0f * (xy + wz);
 	Result.M[1][1] = 1.0f - 2.0f * (xx + zz);
-	Result.M[1][2] = 2.0f * (yz + wx);
+	Result.M[1][2] = 2.0f * (yz - wx);
 	Result.M[1][3] = 0.0f;
 
-	Result.M[2][0] = 2.0f * (xz + wy);
-	Result.M[2][1] = 2.0f * (yz - wx);
+	Result.M[2][0] = 2.0f * (xz - wy);
+	Result.M[2][1] = 2.0f * (yz + wx);
 	Result.M[2][2] = 1.0f - 2.0f * (xx + yy);
 	Result.M[2][3] = 0.0f;
 
@@ -310,7 +310,7 @@ FVector FMatrix::GetScale() const
 
 FVector FMatrix::GetRotation() const
 {
-	FQuat Q = FQuat::MakeFromRotationMatrix(*this);
+	FQuaternion Q = FQuaternion::MakeFromRotationMatrix(*this);
 
 	FVector Euler = Q.GetEuler();
 	return Euler;
@@ -326,8 +326,57 @@ FVector4 FMatrix::TransformVector4(const FVector4& Vector) const
 	};
 }
 
+FVector FMatrix::TransformPosition(const FVector& Position) const
+{
+	FVector4 Result = FMatrix::TransformVector4(FVector4(Position.X, Position.Y, Position.Z, 1.0f));
+	return FVector(Result.X, Result.Y, Result.Z);
+}
+
 FTransform FMatrix::GetTransform() const
 {
-	FQuat RotationQuat = FQuat::MakeFromRotationMatrix(*this);
-	return FTransform(GetTranslation(), RotationQuat, GetScale());
+	return FTransform(GetTranslation(), GetRotation(), GetScale());
+}
+
+FMatrix FMatrix::GetTransformMatrix() const
+{
+	FMatrix Translation;
+	Translation.M[3][0] = M[3][0];
+	Translation.M[3][1] = M[3][1];
+	Translation.M[3][2] = M[3][2];
+
+	return Translation;
+}
+
+FMatrix FMatrix::GetRotationMatrix() const
+{
+	FMatrix Rotation;
+	FVector Scale = GetScale();
+
+	if (FMath::Abs(Scale.X) < SMALL_NUMBER) Scale.X = 1.0f;
+	if (FMath::Abs(Scale.Y) < SMALL_NUMBER) Scale.Y = 1.0f;
+	if (FMath::Abs(Scale.Z) < SMALL_NUMBER) Scale.Z = 1.0f;
+
+	Rotation.M[0][0] = M[0][0] / Scale.X;
+	Rotation.M[0][1] = M[0][1] / Scale.X;
+	Rotation.M[0][2] = M[0][2] / Scale.X;
+
+	Rotation.M[1][0] = M[1][0] / Scale.Y;
+	Rotation.M[1][1] = M[1][1] / Scale.Y;
+	Rotation.M[1][2] = M[1][2] / Scale.Y;
+
+	Rotation.M[2][0] = M[2][0] / Scale.Z;
+	Rotation.M[2][1] = M[2][1] / Scale.Z;
+	Rotation.M[2][2] = M[2][2] / Scale.Z;
+
+	return Rotation;
+}
+
+FMatrix FMatrix::GetScaleMatrix() const
+{
+	FMatrix Scale;
+	Scale.M[0][0] = M[0][0];
+	Scale.M[1][1] = M[1][1];
+	Scale.M[2][2] = M[2][2];
+
+	return Scale;
 }

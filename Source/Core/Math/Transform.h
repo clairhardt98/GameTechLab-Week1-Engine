@@ -2,7 +2,7 @@
 #include "Vector.h"
 #include "Matrix.h"
 #include "Core/Engine.h"
-#include "Core/Math/Plane.h"
+#include "Core/Math/Quat.h"
 
 #define TORAD 0.0174532925199432957f
 
@@ -10,14 +10,14 @@ struct FTransform
 {
 protected:
 	FVector Position;
-	FQuat Rotation;
+	FQuaternion Rotation;
 	FVector Scale;
 	int Depth;
 	
 public:
 	FTransform()
 		: Position(FVector(0, 0, 0))
-		, Rotation(FQuat(0, 0, 0, 1))
+		, Rotation(FQuaternion(0, 0, 0, 1))
 		, Scale(FVector(1, 1, 1))
 	{
 	}
@@ -29,7 +29,7 @@ public:
 	{
 	}
 
-	FTransform(FVector InPosition, FQuat InQuat, FVector InScale)
+	FTransform(FVector InPosition, FQuaternion InQuat, FVector InScale)
 		: Position(InPosition)
 		, Rotation(InQuat)
 		, Scale(InScale)
@@ -51,9 +51,9 @@ public:
 	}
 	inline virtual void SetRotation(const FVector& InRotation)
 	{
-		FQuat QuatX = FQuat::AxisAngleToQuaternion(FVector(1, 0, 0), InRotation.X);
-		FQuat QuatY = FQuat::AxisAngleToQuaternion(FVector(0, 1, 0), InRotation.Y);
-		FQuat QuatZ = FQuat::AxisAngleToQuaternion(FVector(0, 0, 1), InRotation.Z);
+		FQuaternion QuatX = FQuaternion::AxisAngleToQuaternion(FVector(1, 0, 0), InRotation.X, true);
+		FQuaternion QuatY = FQuaternion::AxisAngleToQuaternion(FVector(0, 1, 0), InRotation.Y, true);
+		FQuaternion QuatZ = FQuaternion::AxisAngleToQuaternion(FVector(0, 0, 1), InRotation.Z, true);
 
 		Rotation = QuatZ * QuatY * QuatX;
 		Rotation.Normalize();
@@ -80,7 +80,7 @@ public:
 	{
 		return Position;
 	}
-	FQuat GetRotation() const 
+	FQuaternion GetRotation() const 
 	{
 		return Rotation;
 	}
@@ -130,8 +130,8 @@ public:
 	// InRotate는 Degree 단위
 	void Rotate(const FVector& InRotation)
 	{
-		FQuat DeltaRotation = FQuat::EulerToQuaternion(InRotation);
-		Rotation = FQuat::MultiplyQuaternions(Rotation, DeltaRotation);
+		FQuaternion DeltaRotation = FQuaternion::EulerToQuaternion(InRotation);
+		Rotation = FQuaternion::MultiplyQuaternions(Rotation, DeltaRotation);
 
 		Rotation.Normalize();
 	}
@@ -139,19 +139,18 @@ public:
 	void RotateYaw(float Angle)
 	{
 		FVector Axis = FVector(0, 0, 1).GetSafeNormal();
-		Rotation = FQuat::MultiplyQuaternions(Rotation, FQuat(Axis, Angle));
+		Rotation = FQuaternion::MultiplyQuaternions(Rotation, FQuaternion(Axis, Angle, true));
 	}
 
 	void RotatePitch(float Angle)
 	{
 		FVector Axis = FVector(0, 1, 0).GetSafeNormal();
-		Rotation = FQuat::MultiplyQuaternions(Rotation, FQuat(Axis, Angle));
+		Rotation = FQuaternion::MultiplyQuaternions(Rotation, FQuaternion(Axis, Angle, true));
 	}
 
 	void RotateRoll(float Angle)
 	{
 		FVector Axis = FVector(1, 0, 0).GetSafeNormal();
-		Rotation = FQuat::MultiplyQuaternions(Rotation, FQuat(Axis, Angle));
+		Rotation = FQuaternion::MultiplyQuaternions(Rotation, FQuaternion(Axis, Angle, true));
 	}
-
 };

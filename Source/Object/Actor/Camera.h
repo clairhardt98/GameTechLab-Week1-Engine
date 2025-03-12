@@ -28,6 +28,7 @@ private:
     float Far;
     // 화면각
     float FieldOfView;
+    FVector Direction;
 
 public:
     const float MaxYDegree = 89.8f;
@@ -66,4 +67,11 @@ public:
     {
         return GetActorTransform().GetViewMatrix();
     }
+
+	void SetDirection(const FVector& InDirection)
+	{
+		Direction = InDirection;
+	}
+
+
 };

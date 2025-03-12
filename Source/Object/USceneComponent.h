@@ -17,15 +17,20 @@ public:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 
+	void Pick(bool bPicked);
 
+public:
 	/* 로컬 트랜스폼을 반환*/
 	FTransform GetComponentTransform() const { return RelativeTransform; }
 	/* 월드 트랜스폼을 반환, 이걸로 렌더링한다*/
 	const FTransform GetWorldTransform();
+	virtual void SetRelativeTransform(const FTransform& InTransform);
 
-	void SetRelativeTransform(const FTransform& InTransform);
+	void SetScale(const FVector& InScale);
+	void SetPosition(const FVector& InPosition);
+	void SetRotation(const FVector& InRotation);
+	void SetRotation(const struct FQuaternion& InRotation);
 
-	void Pick(bool bPicked);
 public:
 	bool IsPicked() const { return bIsPicked; }
 
@@ -35,12 +40,18 @@ public:
 	void ApplyParentWorldTransform(const FTransform& InTransform);
 
 protected:
+	virtual void InitBoundingBox() {}
+	virtual void UpdateBoundingBox() {}
+
+protected:
 	USceneComponent* Parent = nullptr;
 	TSet<USceneComponent*> Children;
 	// 이건 내 로컬 트랜스폼
 	FTransform RelativeTransform = FTransform();
 	bool bCanEverTick = true;
 
+	// 바운딩 박스
+	FBox BoundingBox;
 	// debug
 protected:
 	bool bIsPicked = false;

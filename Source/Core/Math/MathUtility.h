@@ -173,4 +173,9 @@ struct FMath
 	{
 		return fmod(X, Y);
 	}
+
+    [[nodiscard]] static float Fabs(float Value)
+    {
+        return fabs(Value);
+    }
 };

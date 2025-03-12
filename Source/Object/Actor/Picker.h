@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "Actor.h"
 
@@ -15,4 +15,9 @@ public:
     virtual void Tick(float DeltaTime) override;
     virtual void LateTick(float DeltaTime) override;
     virtual const char* GetTypeName() override;
+
+private:
+    void PickObjectByColorPixel();
+    void PickObjectByRay();
+    bool CheckRayIntersection(const FVector& RayOrigin, const FVector& RayDir);
 };

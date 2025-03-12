@@ -4,7 +4,7 @@
 #include "Object//Actor/Camera.h"
 #include "PlayerInput.h"
 #include "Static/FEditorManager.h"
-#include "Core/Math/Plane.h"
+#include "Core/Math/Quat.h"
 
 APlayerController::APlayerController() {
 
@@ -14,7 +14,7 @@ void APlayerController::HandleCameraMovement(float DeltaTime) {
 
     FVector NewVelocity(0, 0, 0);
 
-    if (APlayerInput::Get().IsPressedMouse(true) == false)
+    if (UInputManager::Get().IsPressedMouse(true) == false)
     {
         // Camera->SetVelocity(NewVelocity);
         return;
@@ -25,16 +25,16 @@ void APlayerController::HandleCameraMovement(float DeltaTime) {
     //전프레임이랑 비교
     //x좌표 받아와서 x만큼 x축회전
     //y좌표 받아와서 y만큼 y축 회전
-    FVector MousePrePos = APlayerInput::Get().GetMousePrePos();
-    FVector MousePos = APlayerInput::Get().GetMousePos();
+    FVector MousePrePos = UInputManager::Get().GetMousePrePos();
+    FVector MousePos = UInputManager::Get().GetMousePos();
     FVector DeltaPos = MousePos - MousePrePos;
     //FQuat CameraRot = FEditorManager::Get().GetCamera()->GetActorTransform().GetRotation();
 
     FTransform CameraTransform = Camera->GetActorTransform();
 
     FVector TargetRotation = CameraTransform.GetRotation().GetEuler();
-    TargetRotation.Y -= Camera->CameraSpeed * DeltaPos.Y * DeltaTime;
-    TargetRotation.Z -= Camera->CameraSpeed * DeltaPos.X * DeltaTime;
+    TargetRotation.Y += Camera->CameraSpeed * DeltaPos.Y * DeltaTime;
+    TargetRotation.Z += Camera->CameraSpeed * DeltaPos.X * DeltaTime;
     
     TargetRotation.Y = FMath::Clamp(TargetRotation.Y, -Camera->MaxYDegree, Camera->MaxYDegree);
     CameraTransform.SetRotation(TargetRotation);
@@ -54,23 +54,23 @@ void APlayerController::HandleCameraMovement(float DeltaTime) {
     
     float CamSpeed = Camera->CameraSpeed;
 
-    if (APlayerInput::Get().IsPressedKey(EKeyCode::A)) {
+    if (UInputManager::Get().IsPressedKey(EKeyCode::A)) {
         NewVelocity -= Camera->GetRight();
     }
-    if (APlayerInput::Get().IsPressedKey(EKeyCode::D)) {
+    if (UInputManager::Get().IsPressedKey(EKeyCode::D)) {
         NewVelocity += Camera->GetRight();
     }
-    if (APlayerInput::Get().IsPressedKey(EKeyCode::W)) {
+    if (UInputManager::Get().IsPressedKey(EKeyCode::W)) {
         NewVelocity += Camera->GetForward();
     }
-    if (APlayerInput::Get().IsPressedKey(EKeyCode::S)) {
+    if (UInputManager::Get().IsPressedKey(EKeyCode::S)) {
         NewVelocity -= Camera->GetForward();
     }
-    if (APlayerInput::Get().IsPressedKey(EKeyCode::Q))
+    if (UInputManager::Get().IsPressedKey(EKeyCode::Q))
     {
         NewVelocity -= {0.0f, 0.0f, 1.0f};
     }
-    if (APlayerInput::Get().IsPressedKey(EKeyCode::E))
+    if (UInputManager::Get().IsPressedKey(EKeyCode::E))
     {
         NewVelocity += {0.0f, 0.0f, 1.0f};
     }
@@ -87,7 +87,7 @@ void APlayerController::HandleCameraMovement(float DeltaTime) {
 
 void APlayerController::HandleGizmoMovement(float DeltaTime)
 {
-    if (APlayerInput::Get().IsPressedMouse(false) == false)
+    if (UInputManager::Get().IsPressedMouse(false) == false)
     {
         return;
     }

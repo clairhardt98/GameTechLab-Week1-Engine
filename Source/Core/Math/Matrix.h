@@ -2,7 +2,7 @@
 
 struct FVector4;
 struct FVector;
-struct FQuat;
+struct FQuaternion;
 
 struct alignas(16) FMatrix
 {
@@ -17,7 +17,7 @@ struct alignas(16) FMatrix
 	static FMatrix GetTranslateMatrix(FVector Translation);
 	static FMatrix GetScaleMatrix(float X, float Y, float Z);
 	static FMatrix GetScaleMatrix(const FVector& InScale);
-	static FMatrix GetRotateMatrix(const FQuat& Q);
+	static FMatrix GetRotateMatrix(const FQuaternion& Q);
 	static FMatrix LookAtLH(const FVector& EyePosition, const FVector& FocusPoint, const FVector& WorldUp);
 	static FMatrix PerspectiveFovLH(float FieldOfView, float AspectRatio, float NearPlane, float FarPlane);
 
@@ -40,7 +40,12 @@ struct alignas(16) FMatrix
 	FVector GetScale() const;
 	FVector GetRotation() const;
 
+	FVector TransformPosition(const FVector& Position) const;
 	FVector4 TransformVector4(const FVector4& Vector) const;
 
 	class FTransform GetTransform() const;
+
+	FMatrix GetTransformMatrix() const;
+	FMatrix GetRotationMatrix() const;
+	FMatrix GetScaleMatrix() const;
 };

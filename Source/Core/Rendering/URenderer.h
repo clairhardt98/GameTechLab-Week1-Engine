@@ -11,13 +11,14 @@
 #include "Core/Math/Matrix.h"
 #include "Core/Engine.h"
 #include "Primitive/PrimitiveVertices.h"
-#include "Core/Math/Plane.h"
+#include "Core/Math/Quat.h"
 
 
 struct FVertexSimple;
 struct FVector4;
 
 class ACamera;
+struct FBox;
 
 class URenderer
 {
@@ -44,7 +45,7 @@ private:
 	
     struct ConstantUpdateInfo
     {
-        const FTransform& Transform;
+        const FMatrix& MVP;
 		const FVector4& Color;
         bool bUseVertexColor;
     };
@@ -82,6 +83,8 @@ public:
      */
     void RenderPrimitiveInternal(ID3D11Buffer* pBuffer, UINT numVertices) const;
 
+	void RenderBox(const FBox& Box, const FVector4& Color = FVector4(0,0,0,1)) const;
+
     /**
      * 정점 데이터로 Vertex Buffer를 생성합니다.
      * @param Vertices 버퍼로 변환할 정점 데이터 배열의 포인터
@@ -108,6 +111,8 @@ public:
     void UpdateProjectionMatrix(ACamera* Camera);
 
 	void OnUpdateWindowSize(int Width, int Height);
+
+	void GetPrimitiveLocalBounds(EPrimitiveType Type, FVector& OutMin, FVector& OutMax);
 
 protected:
     /** Direct3D Device 및 SwapChain을 생성합니다. */
@@ -171,7 +176,7 @@ protected:
 	
 	// Buffer Cache
 
-	std::unique_ptr<FBufferCache> BufferCache;
+	std::unique_ptr<class FBufferCache> BufferCache;
 
 	FMatrix WorldMatrix;
     FMatrix ViewMatrix;
@@ -196,8 +201,8 @@ public:
 	//피킹용 함수들	
     void ReleasePickingFrameBuffer();
     void CreatePickingTexture(HWND hWnd);
-    void PrepareZIgnore();
-    void PreparePicking();
+    void PrepareZIgnore() const;
+    void PreparePicking() const;
 	void PreparePickingShader() const;
 	void UpdateConstantPicking(FVector4 UUIDColor) const;
     void UpdateConstantDepth(int Depth) const;

@@ -32,8 +32,28 @@ void USceneComponent::SetRelativeTransform(const FTransform& InTransform)
 {
 	// 내 로컬 트랜스폼 갱신
 	RelativeTransform = InTransform;
-	FVector Rot = RelativeTransform.GetRotation().GetEuler();
+	// 바운딩박스 갱신
+	BoundingBox.Update(RelativeTransform.GetMatrix());
+}
 
+void USceneComponent::SetScale(const FVector& InScale)
+{
+	RelativeTransform.SetScale(InScale);
+}
+
+void USceneComponent::SetPosition(const FVector& InPosition)
+{
+	RelativeTransform.SetPosition(InPosition);
+}
+
+void USceneComponent::SetRotation(const FVector& InRotation)
+{
+	RelativeTransform.SetRotation(InRotation);
+}
+
+void USceneComponent::SetRotation(const FQuaternion& InRotation)
+{
+	RelativeTransform.SetRotation(InRotation);
 }
 
 void USceneComponent::Pick(bool bPicked)

@@ -32,43 +32,44 @@ BufferInfo FBufferCache::CreateVertexBufferInfo(EPrimitiveType Type)
 	ID3D11Buffer* Buffer = nullptr;
 	int Size = 0;
 	D3D_PRIMITIVE_TOPOLOGY Topology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+	FVertexSimple* Vertices = nullptr;
 
 	switch (Type)
 	{
 	case EPrimitiveType::EPT_Line:
 		Size = std::size(LineVertices);
-		Buffer = UEngine::Get().GetRenderer()->CreateVertexBuffer(LineVertices, sizeof(FVertexSimple) * Size);
+		Vertices = LineVertices;
 		Topology = D3D_PRIMITIVE_TOPOLOGY_LINELIST;
 		break;
 	case EPrimitiveType::EPT_Triangle:
 		Size = std::size(TriangleVertices);
-		Buffer = UEngine::Get().GetRenderer()->CreateVertexBuffer(TriangleVertices, sizeof(FVertexSimple) * Size);
+		Vertices = TriangleVertices;
 		break;
 	case EPrimitiveType::EPT_Cube:
-		Size = std::size(CubeVertices);
-		Buffer = UEngine::Get().GetRenderer()->CreateVertexBuffer(CubeVertices, sizeof(FVertexSimple) * Size);
+		Vertices = CubeVertices;
 		break;
 	case EPrimitiveType::EPT_Sphere:
 		Size = std::size(SphereVertices);
-		Buffer = UEngine::Get().GetRenderer()->CreateVertexBuffer(SphereVertices, sizeof(FVertexSimple) * Size);
+		Vertices = SphereVertices;
 		break;
 	case EPrimitiveType::EPT_Cylinder:
 	{
-		TArray<FVertexSimple> Vertices = CreateCylinderVertices();
-		Size = Vertices.Num();
-		Buffer = UEngine::Get().GetRenderer()->CreateVertexBuffer(Vertices.GetData(), sizeof(FVertexSimple) * Size);
+		TArray<FVertexSimple> VerticesArr = CreateCylinderVertices();
+		Size = VerticesArr.Num();
+		Vertices = VerticesArr.GetData();
 		break;
 	}
 	case EPrimitiveType::EPT_Cone:
 	{
-		TArray<FVertexSimple> Vertices = CreateConeVertices();
-		Size = Vertices.Num();
-		Buffer = UEngine::Get().GetRenderer()->CreateVertexBuffer(Vertices.GetData(), sizeof(FVertexSimple) * Size);
+		TArray<FVertexSimple> VerticesArr = CreateConeVertices();
+		Size = VerticesArr.Num();
+		Vertices = VerticesArr.GetData();
 		break;
 	}
 	}
-
-	return BufferInfo(Buffer, Size, Topology);
+	Buffer = UEngine::Get().GetRenderer()->CreateVertexBuffer(Vertices, sizeof(FVertexSimple) * Size);
+	
+	return BufferInfo(Buffer, Size, Topology, Vertices);
 }
 
 
@@ -77,7 +78,7 @@ TArray<FVertexSimple> FBufferCache::CreateConeVertices()
 	TArray<FVertexSimple> vertices;
 
 	int segments = 36;
-	float radius = 1.f;
+	float radius = .3f;
 	float height = 1.f;
 
 
@@ -112,7 +113,7 @@ TArray<FVertexSimple> FBufferCache::CreateCylinderVertices()
 	
 	int segments = 36;
 	float radius = .03f;
-	float height = .5f;
+	float height = 1.f;
 
 
 	// 원기둥의 바닥과 윗면

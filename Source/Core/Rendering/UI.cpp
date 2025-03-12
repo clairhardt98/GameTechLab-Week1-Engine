@@ -154,7 +154,7 @@ void UI::RenderMemoryUsage()
 
 void UI::RenderPrimitiveSelection()
 {
-    const char* items[] = { "Sphere", "Cube", "Cylinder", "Cone" };
+    const char* items[] = { "Sphere", "Cube", "Cylinder", "Cone", "Arrow"};
 
     ImGui::Combo("Primitive", &currentItem, items, IM_ARRAYSIZE(items));
 
@@ -178,7 +178,11 @@ void UI::RenderPrimitiveSelection()
             else if (strcmp(items[currentItem], "Cone") == 0)
             {
                 World->SpawnActor<ACone>();
-            }
+			}
+			else if (strcmp(items[currentItem], "Arrow") == 0)
+			{
+				World->SpawnActor<AArrow>();
+			}
             //else if (strcmp(items[currentItem], "Triangle") == 0)
             //{
             //    Actor->AddComponent<UTriangleComp>();   
@@ -287,10 +291,6 @@ void UI::RenderCameraSettings()
     if (ImGui::DragFloat3("Camera Rotation", reinterpret_cast<float*>(&UIEulerAngle), 0.1f))
     {
         FTransform Transform = Camera->GetActorTransform();
-
-        //FVector DeltaEulerAngle = UIEulerAngle - PrevEulerAngle;
-        //Transform.Rotate(DeltaEulerAngle);
-        
         UIEulerAngle.Y = FMath::Clamp(UIEulerAngle.Y, -Camera->MaxYDegree, Camera->MaxYDegree);
         Transform.SetRotation(UIEulerAngle);
         Camera->SetActorTransform(Transform);
@@ -366,6 +366,10 @@ void UI::RenderPropertyWindow()
         if (isTransformDirty)
         {
             selectedActor->SetActorTransform(selectedTransform);
+        }
+        if (ImGui::Button("Remove"))
+        {
+            UEngine::Get().GetWorld()->DestroyActor(selectedActor);
         }
     }
     ImGui::End();

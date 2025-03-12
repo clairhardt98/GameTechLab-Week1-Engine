@@ -49,6 +49,9 @@ public:
 
     bool operator==(const FVector& Other) const;
     bool operator!=(const FVector& Other) const;
+
+    FVector RotateVector(const FVector& Other)const;
+
 };
 
 inline float FVector::DotProduct(const FVector& A, const FVector& B)

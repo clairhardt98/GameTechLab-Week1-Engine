@@ -72,20 +72,20 @@ void UWorld::Render()
 	ACamera* cam = FEditorManager::Get().GetCamera();
 	Renderer->UpdateViewMatrix(cam->GetActorTransform());
 	Renderer->UpdateProjectionMatrix(cam);
-	
-	if (APlayerInput::Get().GetMouseDown(false))
-	{
-		RenderPickingTexture(*Renderer);
-	}
-	
+
+	//if (UInputManager::Get().GetMouseDown(false))
+	//{
+	//	RenderPickingTexture(*Renderer);
+	//}
+
 	RenderMainTexture(*Renderer);
 
-	
+
 	// DisplayPickingTexture(*Renderer);
 
 }
 
-void UWorld::RenderPickingTexture(URenderer& Renderer)
+void UWorld::RenderPickingTexture(const URenderer& Renderer)
 {
 	Renderer.PreparePicking();
 	Renderer.PreparePickingShader();
@@ -102,7 +102,7 @@ void UWorld::RenderPickingTexture(URenderer& Renderer)
 	}
 
 	Renderer.PrepareZIgnore();
-	for (auto& RenderComponent: ZIgnoreRenderComponents)
+	for (auto& RenderComponent : ZIgnoreRenderComponents)
 	{
 		uint32 UUID = RenderComponent->GetUUID();
 		RenderComponent->UpdateConstantPicking(Renderer, APicker::EncodeUUID(UUID));
@@ -127,10 +127,19 @@ void UWorld::RenderMainTexture(URenderer& Renderer)
 	}
 
 	Renderer.PrepareZIgnore();
-	for (auto& RenderComponent: ZIgnoreRenderComponents)
+	for (auto& RenderComponent : ZIgnoreRenderComponents)
 	{
 		uint32 depth = RenderComponent->GetOwner()->GetDepth();
 		RenderComponent->Render();
+	}
+}
+
+void UWorld::RenderBoundingBoxes(URenderer& Renderer)
+{
+	for (FBox* Box : BoundingBoxes)
+	{
+		if (Box)
+			Renderer.RenderBox(*Box);
 	}
 }
 
@@ -184,15 +193,15 @@ void UWorld::SaveWorld()
 void UWorld::AddZIgnoreComponent(UPrimitiveComponent* InComponent)
 {
 	ZIgnoreRenderComponents.Add(InComponent);
-	InComponent->SetIsOrthoGraphic(true);
+	//InComponent->SetIsOrthoGraphic(true);
 }
 
 void UWorld::LoadWorld(const char* SceneName)
 {
-	if (SceneName == nullptr || strcmp(SceneName, "") == 0){
+	if (SceneName == nullptr || strcmp(SceneName, "") == 0) {
 		return;
 	}
-	
+
 	UWorldInfo* WorldInfo = JsonSaveHelper::LoadScene(SceneName);
 	if (WorldInfo == nullptr) return;
 
@@ -206,11 +215,11 @@ void UWorld::LoadWorld(const char* SceneName)
 	for (uint32 i = 0; i < ActorCount; i++)
 	{
 		UObjectInfo* ObjectInfo = WorldInfo->ObjctInfos[i];
-		FTransform Transform = FTransform(ObjectInfo->Location, FQuat(), ObjectInfo->Scale);
+		FTransform Transform = FTransform(ObjectInfo->Location, FQuaternion(), ObjectInfo->Scale);
 		Transform.Rotate(ObjectInfo->Rotation);
 
 		AActor* Actor = nullptr;
-		
+
 		if (ObjectInfo->ObjectType == "Actor")
 		{
 			Actor = SpawnActor<AActor>();
@@ -235,16 +244,40 @@ void UWorld::LoadWorld(const char* SceneName)
 		{
 			Actor = SpawnActor<ACone>();
 		}
-		
+
 		Actor->SetActorTransform(Transform);
 	}
+}
+
+
+bool UWorld::LineTrace(const FVector& Start, const FVector& End, USceneComponent** FirstHitComponent) const
+{
+	for (AActor* Actor : Actors)
+	{
+		if (Actor->IsGizmoActor())
+		{
+			continue;
+		}
+		for (UActorComponent* Component : Actor->GetComponents())
+		{
+			if (USceneComponent* SceneComponent = dynamic_cast<USceneComponent*>(Component))
+			{
+				//if (SceneComponent->LineTrace(Start, End))
+				//{
+				//	*FirstHitComponent = SceneComponent;
+				//	return true;
+				//}
+			}
+		}
+	}
+	return false;
 }
 
 UWorldInfo UWorld::GetWorldInfo() const
 {
 	UWorldInfo WorldInfo;
 	WorldInfo.ActorCount = Actors.Num();
-	WorldInfo.ObjctInfos = new UObjectInfo*[WorldInfo.ActorCount];
+	WorldInfo.ObjctInfos = new UObjectInfo * [WorldInfo.ActorCount];
 	WorldInfo.SceneName = *SceneName;
 	WorldInfo.Version = 1;
 	uint32 i = 0;
