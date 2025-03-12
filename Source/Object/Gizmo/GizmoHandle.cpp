@@ -104,13 +104,9 @@ void AGizmoHandle::Tick(float DeltaTime)
 		}
 	}
 
-	if (!APlayerInput::Get().IsPressedKey(EKeyCode::Space))
+	if (APlayerInput::Get().GetKeyDown(EKeyCode::Space))
 	{
-		bPrevPressed = false;
-	}
-	else if (APlayerInput::Get().IsPressedKey(EKeyCode::Space) && !bPrevPressed)
-	{
-		int type = static_cast<int>(GizmoType);
+ 		int type = static_cast<int>(GizmoType);
 		type = (type + 1) % static_cast<int>(EGizmoType::Max);
 		GizmoType = static_cast<EGizmoType>(type);
 

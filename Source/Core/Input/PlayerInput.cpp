@@ -36,6 +36,16 @@ APlayerInput::APlayerInput()
     {
         m=false;
     }
+
+    for (bool& ok : _onceKeys)
+    {
+        ok=false;
+    }
+
+    for (bool& om : onceMouse)
+    {
+        om=false;
+    }
 }
 
 bool APlayerInput::IsPressedKey(EKeyCode key) const
@@ -46,11 +56,18 @@ bool APlayerInput::IsPressedKey(EKeyCode key) const
 void APlayerInput::KeyDown(EKeyCode key)
 {
     _keys[static_cast<uint8_t>(key)] = true;
+    _onceKeys[static_cast<uint8_t>(key)] = true;
+}
+
+void APlayerInput::KeyOnceUp(EKeyCode key)
+{
+    _onceKeys[static_cast<uint8_t>(key)] = false;
 }
 
 void APlayerInput::KeyUp(EKeyCode key)
 {
     _keys[static_cast<uint8_t>(key)] = false;
+    _onceKeys[static_cast<uint8_t>(key)] = false;
 }
 
 std::vector<EKeyCode> APlayerInput::GetPressedKeys() {
@@ -78,7 +95,7 @@ void APlayerInput::MouseKeyUp(FVector MouseUpPoint, FVector WindowSize, int isRi
 
 void APlayerInput::PreProcessInput()
 {
-    ExpireOnceMouse();
+    ExpireOnce();
 }
 
 void APlayerInput::TickPlayerInput()
@@ -96,12 +113,17 @@ void APlayerInput::SetMousePos()
     }
 }
 
-void APlayerInput::ExpireOnceMouse()
+void APlayerInput::ExpireOnce()
 {
     for (bool& i : onceMouse)
     {
         i = false;
-    }  
+    }
+
+    for (bool& m : _onceKeys)
+    {
+        m=false;
+    }
 }
 
 FVector APlayerInput::CalNDCPos(FVector MousePos, FVector WindowSize)

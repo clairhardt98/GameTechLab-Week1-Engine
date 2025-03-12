@@ -33,6 +33,10 @@ LRESULT UEngine::WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         break;
     case WM_KEYDOWN:
         APlayerInput::Get().KeyDown(static_cast<EKeyCode>(wParam));
+        if ((lParam>>30)%2 != 0)
+        {
+            APlayerInput::Get().KeyOnceUp(static_cast<EKeyCode>( wParam ));
+        }
         break;
     case WM_KEYUP:
         APlayerInput::Get().KeyUp(static_cast<EKeyCode>( wParam ));

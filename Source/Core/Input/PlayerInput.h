@@ -128,6 +128,7 @@ public:
      * 키를 눌림 상태로 전환합니다. 
      */
     void KeyDown(EKeyCode key);
+    void KeyOnceUp(EKeyCode key);
 
     /**
      * 키를 눌리지 않은 상태로 전환합니다.
@@ -135,7 +136,7 @@ public:
     void KeyUp(EKeyCode key);
 
     void SetMousePos();
-    void ExpireOnceMouse();
+    void ExpireOnce();
     
     void HandleMouseInput(HWND hWnd, LPARAM lParam, bool isDown, bool isRight);
     
@@ -158,6 +159,8 @@ public:
 
     bool GetMouseDown(bool isRight) { return onceMouse[isRight]; }
 
+    [[nodiscard]] bool GetKeyDown(EKeyCode KeyCode) const { return _onceKeys[static_cast<uint32>(KeyCode)];}
+
     FVector GetMouseDownPos(int isRight) { return MouseKeyDownPos[isRight]; }
 
     FVector GetMouseDownNDCPos(int isRight) { return MouseKeyDownNDCPos[isRight]; }
@@ -178,6 +181,7 @@ private:
     bool mouse[2]; //0이 좌클릭 1이 우클릭
     bool onceMouse[2];
     bool _keys[256];
+    bool _onceKeys[256];
     bool bIsBlockInput = false;
     FVector MouseKeyDownPos[2];
     FVector MouseKeyDownNDCPos[2];
