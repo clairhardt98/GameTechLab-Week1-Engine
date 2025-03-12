@@ -16,7 +16,7 @@ ACamera::ACamera()
     RootComponent = AddComponent<USceneComponent>();
     
     FTransform StartPos = GetActorTransform();
-    StartPos.SetPosition(FVector(0, 0, 0));
+    StartPos.SetPosition(FVector(-5, 0, 1));
     //StartPos.LookAt(FVector(0, 0, 0), GetForward());
 
     //FVector Rotation = StartPos.GetRotation().GetEuler();

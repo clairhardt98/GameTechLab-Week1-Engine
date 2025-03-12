@@ -45,7 +45,7 @@ private:
 	
     struct ConstantUpdateInfo
     {
-        const FMatrix& MVP;
+        const FMatrix& ModelMatrix;
 		const FVector4& Color;
         bool bUseVertexColor;
     };

@@ -333,16 +333,16 @@ void URenderer::UpdateConstant(const ConstantUpdateInfo& UpdateInfo) const
 
     D3D11_MAPPED_SUBRESOURCE ConstantBufferMSR;
 
-        //FMatrix::Transpose(ProjectionMatrix) * 
-        //FMatrix::Transpose(ViewMatrix) * 
-        //FMatrix::Transpose(UpdateInfo.Transform.GetMatrix());    // 상수 버퍼를 CPU 메모리에 매핑
+    FMatrix MVP =  FMatrix::Transpose(ProjectionMatrix) * 
+        FMatrix::Transpose(ViewMatrix) * 
+        FMatrix::Transpose(UpdateInfo.ModelMatrix);    // 상수 버퍼를 CPU 메모리에 매핑
 
     // D3D11_MAP_WRITE_DISCARD는 이전 내용을 무시하고 새로운 데이터로 덮어쓰기 위해 사용
     DeviceContext->Map(ConstantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &ConstantBufferMSR);
     {
         // 매핑된 메모리를 FConstants 구조체로 캐스팅
         FConstants* Constants = static_cast<FConstants*>(ConstantBufferMSR.pData);
-        Constants->MVP = UpdateInfo.MVP.GetTransposed();
+        Constants->MVP = MVP;
 		Constants->Color = UpdateInfo.Color;
 		Constants->bUseVertexColor = UpdateInfo.bUseVertexColor ? 1 : 0;
     }

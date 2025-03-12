@@ -46,6 +46,7 @@ BufferInfo FBufferCache::CreateVertexBufferInfo(EPrimitiveType Type)
 		Vertices = TriangleVertices;
 		break;
 	case EPrimitiveType::EPT_Cube:
+		Size = std::size(CubeVertices);
 		Vertices = CubeVertices;
 		break;
 	case EPrimitiveType::EPT_Sphere:
