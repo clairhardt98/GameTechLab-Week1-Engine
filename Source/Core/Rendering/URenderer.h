@@ -83,7 +83,7 @@ public:
      */
     void RenderPrimitiveInternal(ID3D11Buffer* pBuffer, UINT numVertices) const;
 
-	void RenderBox(const FBox& Box, const FVector4& Color = FVector4(0,0,0,1)) const;
+	void RenderBox(const FBox& Box, const FVector4& Color = FVector4(1,1,1,1)) const;
 
     /**
      * 정점 데이터로 Vertex Buffer를 생성합니다.

@@ -12,7 +12,10 @@ public:
 	}
 	FVector Min;
 	FVector Max;
-	bool isValid() const
+
+	FVector InitialMin;
+	FVector InitialMax;
+	bool IsValid() const
 	{
 		return Min.X < Max.X && Min.Y < Max.Y && Min.Z < Max.Z;
 	}
@@ -58,14 +61,14 @@ public:
 		// 스케일 변환만 해주면된다
 		FVector Vertices[8] =
 		{
-			InModelMatrix.TransformPosition(FVector(Min.X, Min.Y, Min.Z)),
-			InModelMatrix.TransformPosition(FVector(Min.X, Min.Y, Max.Z)),
-			InModelMatrix.TransformPosition(FVector(Min.X, Max.Y, Min.Z)),
-			InModelMatrix.TransformPosition(FVector(Min.X, Max.Y, Max.Z)),
-			InModelMatrix.TransformPosition(FVector(Max.X, Min.Y, Min.Z)),
-			InModelMatrix.TransformPosition(FVector(Max.X, Min.Y, Max.Z)),
-			InModelMatrix.TransformPosition(FVector(Max.X, Max.Y, Min.Z)),
-			InModelMatrix.TransformPosition(FVector(Max.X, Max.Y, Max.Z))
+			InModelMatrix.TransformPosition(FVector(InitialMin.X, InitialMin.Y, InitialMin.Z)),
+			InModelMatrix.TransformPosition(FVector(InitialMin.X, InitialMin.Y, InitialMax.Z)),
+			InModelMatrix.TransformPosition(FVector(InitialMin.X, InitialMax.Y, InitialMin.Z)),
+			InModelMatrix.TransformPosition(FVector(InitialMin.X, InitialMax.Y, InitialMax.Z)),
+			InModelMatrix.TransformPosition(FVector(InitialMax.X, InitialMin.Y, InitialMin.Z)),
+			InModelMatrix.TransformPosition(FVector(InitialMax.X, InitialMin.Y, InitialMax.Z)),
+			InModelMatrix.TransformPosition(FVector(InitialMax.X, InitialMax.Y, InitialMin.Z)),
+			InModelMatrix.TransformPosition(FVector(InitialMax.X, InitialMax.Y, InitialMax.Z))
 		};
 
 		FVector NewMin = Vertices[0];
@@ -81,19 +84,22 @@ public:
 			NewMax.Z = FMath::Max(NewMax.Z, Vertices[i].Z);
 		}
 
-		FVector Scale = InModelMatrix.GetScale();
-		NewMin.X *= Scale.X;
-		NewMin.Y *= Scale.Y;
-		NewMin.Z *= Scale.Z;
-		NewMax.X *= Scale.X;
-		NewMax.Y *= Scale.Y;
-		NewMax.Z *= Scale.Z;
+		//FVector Scale = InModelMatrix.GetScale();
+		//NewMin.X *= Scale.X;
+		//NewMin.Y *= Scale.Y;
+		//NewMin.Z *= Scale.Z;
+		//NewMax.X *= Scale.X;
+		//NewMax.Y *= Scale.Y;
+		//NewMax.Z *= Scale.Z;
+
+		Min = NewMin;
+		Max = NewMax;
 	}
 
 	void Init(const FVector& InMin, const FVector& InMax)
 	{
-		Min = InMin;
-		Max = InMax;
+		InitialMin = Min = InMin;
+		InitialMax = Max = InMax;
 	}
 
 	void Init(const FVector& InCenter, float InRadius)

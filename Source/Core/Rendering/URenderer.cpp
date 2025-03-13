@@ -275,12 +275,12 @@ void URenderer::RenderBox(const FBox& Box, const FVector4& Color) const
         0, 4, 2, 6, 3, 7, 1, 5  // 상단과 하단을 연결하는 선
 	};
 
-	ID3D11Buffer* Buffer = CreateVertexBuffer(BoxVertices, sizeof(FVector) * 8);
+	ID3D11Buffer* VertexBuffer = CreateVertexBuffer(BoxVertices, sizeof(FVertexSimple) * 8);
 
     D3D11_SUBRESOURCE_DATA initData = {};
     initData.pSysMem = BoxVertices;
-    UINT stride = sizeof(FVector);
-    UINT offset = 0;
+    UINT Stride = sizeof(FVertexSimple);
+    UINT Offset = 0;
 
     // !NOTE : 임시 -> 나중에 버퍼는 캐시해야됨
     ID3D11Buffer* IndexBuffer = nullptr;
@@ -292,15 +292,15 @@ void URenderer::RenderBox(const FBox& Box, const FVector4& Color) const
 
     Device->CreateBuffer(&bufferDesc, &initData, &IndexBuffer);
 
-    DeviceContext->IASetVertexBuffers(0, 1, &Buffer, &stride, &offset);
-    DeviceContext->IASetIndexBuffer(Buffer, DXGI_FORMAT_R32_UINT, 0);
+    DeviceContext->IASetVertexBuffers(0, 1, &VertexBuffer, &Stride, &Offset);
+    DeviceContext->IASetIndexBuffer(IndexBuffer, DXGI_FORMAT_R32_UINT, 0);
     DeviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_LINELIST);
 
 	DeviceContext->DrawIndexed(Indices.size(), 0, 0);
     if (IndexBuffer)
         IndexBuffer->Release();
-	if (Buffer)
-		Buffer->Release();
+	if (VertexBuffer)
+		VertexBuffer->Release();
 }
 
 ID3D11Buffer* URenderer::CreateVertexBuffer(const FVertexSimple* Vertices, UINT ByteWidth) const

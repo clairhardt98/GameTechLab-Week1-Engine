@@ -11,7 +11,7 @@ void UPrimitiveComponent::BeginPlay()
 {
 	Super::BeginPlay();
 	InitBoundingBox();
-	//GetOwner()->GetWorld()->AddBoundingBox(&BoundingBox);
+	GetOwner()->GetWorld()->AddBoundingBox(&BoundingBox);
 }
 
 void UPrimitiveComponent::Tick(float DeltaTime)

@@ -73,15 +73,17 @@ void UWorld::Render()
 	Renderer->UpdateViewMatrix(cam->GetActorTransform());
 	Renderer->UpdateProjectionMatrix(cam);
 
-	//if (UInputManager::Get().GetMouseDown(false))
-	//{
-	//	RenderPickingTexture(*Renderer);
-	//}
+	if (UInputManager::Get().GetMouseDown(false))
+	{
+		RenderPickingTexture(*Renderer);
+	}
 
 	RenderMainTexture(*Renderer);
 
 
 	// DisplayPickingTexture(*Renderer);
+
+	RenderBoundingBoxes(*Renderer);
 
 }
 
@@ -122,7 +124,7 @@ void UWorld::RenderMainTexture(URenderer& Renderer)
 			continue;
 		}
 		uint32 depth = RenderComponent->GetOwner()->GetDepth();
-		// RenderComponent->UpdateConstantDepth(Renderer, depth);
+		//RenderComponent->UpdateConstantDepth(Renderer, depth);
 		RenderComponent->Render();
 	}
 
@@ -138,7 +140,7 @@ void UWorld::RenderBoundingBoxes(URenderer& Renderer)
 {
 	for (FBox* Box : BoundingBoxes)
 	{
-		if (Box)
+		if (Box && Box->IsValid())
 			Renderer.RenderBox(*Box);
 	}
 }
